@@ -32,8 +32,10 @@ add_project_arguments(
   language: ['cpp'],
 )
 
-fst_dep = dependency('openfst')
-tre_dep = dependency('tre')
+cpp = meson.get_compiler('cpp')
+fst_dep = cpp.find_library('fst', required: true)
+tre_dep = cpp.find_library('tre', required: true)
+
 xml2_dep = dependency('libxml-2.0')
 
 index_lib = library(
@@ -68,9 +70,9 @@ foreach p : ['make-index', 'merge-indexes', 'dump-index', 'explore-index']
 endforeach
 
 foreach p : ['find-anagrams', 'find-phone-words']
-  executable(p, p + '.cpp', link_with: search_lib, install: true)
+  executable(p, p + '.cpp', link_with: [search_lib, index_lib, expr_lib], dependencies: [fst_dep, tre_dep], install: true)
 endforeach
 
 foreach p : ['find-expr', 'test-expr']
-  executable(p, p + '.cpp', link_with: expr_lib, dependencies: fst_dep, install: true)
+  executable(p, p + '.cpp', link_with: [search_lib, index_lib, expr_lib], dependencies: [fst_dep, tre_dep], install: true)
 endforeach
