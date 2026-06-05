@@ -1,0 +1,104 @@
+{
+  "<expr>": [
+    ["<branch>"],
+    ["<branch>", "|", "<expr>"]
+  ],
+
+  "<branch>": [
+    ["<factor>"],
+    ["<factor>", "&", "<factor>"]
+  ],
+
+  "<factor>": [
+    ["<piece>"],
+    ["<piece>", "<piece>"],
+    ["<piece>", "<piece>", "<piece>"]
+  ],
+
+  "<piece>": [
+    ["<atom>"],
+    ["<atom>", "*"],
+    ["<atom>", "+"],
+    ["<atom>", "?"],
+    ["<atom>", "{", "<count>", "}"],
+    ["<atom>", "{", "<count>", ",", "<count>", "}"],
+    ["<atom>", "{", "<count>", ",}"]
+  ],
+
+  "<atom>": [
+    ["<charclass>"],
+    ["<bracketexpr>"],
+    ["(", "<expr>", ")"],
+    ["\"", "<quotedexpr>", "\""],
+    ["<", "<anagram>", ">"]
+  ],
+
+  "<quotedexpr>": [
+    ["<quotedfactor>"],
+    ["<quotedfactor>", "|", "<quotedfactor>"]
+  ],
+
+  "<quotedfactor>": [
+    ["<quotedpiece>"],
+    ["<quotedpiece>", "<quotedpiece>"]
+  ],
+
+  "<quotedpiece>": [
+    ["<quotedatom>"],
+    ["<quotedatom>", "*"],
+    ["<quotedatom>", "+"],
+    ["<quotedatom>", "?"]
+  ],
+
+  "<quotedatom>": [
+    ["<literalchar>"],
+    ["<bracketexpr>"],
+    ["(", "<quotedexpr>", ")"]
+  ],
+
+  "<anagram>": [
+    ["<piece>"],
+    ["<piece>", "<piece>"],
+    ["<piece>", "<piece>", "<piece>"],
+    ["<piece>", "<piece>", "<piece>", "<piece>"]
+  ],
+
+  "<bracketexpr>": [
+    ["[", "<classlist>", "]"],
+    ["[^", "<classlist>", "]"]
+  ],
+
+  "<classlist>": [
+    ["<classitem>"],
+    ["<classitem>", "<classitem>"],
+    ["<classitem>", "<classitem>", "<classitem>"]
+  ],
+
+  "<classitem>": [
+    ["<charclass>"],
+    ["<literalchar>", "-", "<literalchar>"]
+  ],
+
+  "<charclass>": [
+    ["."],
+    ["#"],
+    ["_"],
+    ["A"],
+    ["C"],
+    ["V"],
+    ["<literalchar>"]
+  ],
+
+  "<literalchar>": [
+    ["a"], ["b"], ["c"], ["d"], ["e"], ["f"], ["g"], ["h"], ["i"],
+    ["j"], ["k"], ["l"], ["m"], ["n"], ["o"], ["p"], ["q"], ["r"],
+    ["s"], ["t"], ["u"], ["v"], ["w"], ["x"], ["y"], ["z"],
+    ["0"], ["1"], ["2"], ["3"], ["4"], ["5"], ["6"], ["7"], ["8"], ["9"],
+    [" "]
+  ],
+
+  "<count>": [
+    ["0"], ["1"], ["2"], ["3"], ["4"], ["5"],
+    ["10"], ["50"], ["100"], ["200"], ["255"]
+  ]
+}

@@ -15,7 +15,13 @@ BUILDDIR="$SRC/builddir"
 
 apt-get update
 apt-get install -y --no-install-recommends \
-  libfst-dev libtre-dev libxml2-dev meson ninja-build 2>&1 | grep -E '(install|already)'
+  libfst-dev libtre-dev libxml2-dev meson ninja-build neovim unzip valgrind uuid-dev default-jre python3 2>&1 | grep -E '(install|already)'
+
+wget https://www.antlr.org/download/antlr-4.8-complete.jar
+cp -f antlr-4.8-complete.jar /usr/local/lib
+
+meson setup builddir
+meson compile -C builddir
 
 find builddir -name "*.a" -o -name "*.o" | sort
 find /usr /opt -name "libfst*" 2>/dev/null
@@ -29,25 +35,14 @@ sed -i \
   's/osymbols_ = impl\.osymbols_ ? impl\.osymbols_->Copy() : nullptr;/osymbols_.reset(impl.osymbols_ ? impl.osymbols_->Copy() : nullptr);/' \
   /usr/include/fst/fst.h
 
-AFL_USE_ASAN=1 AFL_USE_UBSAN=1 \
-  afl-c++ \
-  -std=c++17 -O1 -g \
-  -fno-omit-frame-pointer \
-  -fsanitize=address,undefined \
-  -fsanitize-recover=all \
-  -Ibuilddir -I. \
-  -Wno-ignored-qualifiers -Wno-sign-compare -Wno-overloaded-virtual \
-  -Wno-unused-parameter -Wno-vla -Wno-dangling-pointer -Wno-missing-template-keyword \
-  fuzz_expr.cpp \
-  builddir/libexpr.so.p/expr-anagram.cpp.o \
-  builddir/libexpr.so.p/expr-filter.cpp.o \
-  builddir/libexpr.so.p/expr-intersect.cpp.o \
-  builddir/libexpr.so.p/expr-optimize.cpp.o \
-  builddir/libexpr.so.p/expr-parse.cpp.o \
-  builddir/libindex.so.p/index-reader.cpp.o \
-  builddir/libindex.so.p/index-walker.cpp.o \
-  builddir/libindex.so.p/index-writer.cpp.o \
-  builddir/libsearch.so.p/search-driver.cpp.o \
-  builddir/libsearch.so.p/search-printer.cpp.o \
-  -lfst -ltre \
-  -o fuzz_expr
+cd /AFLplusplus/custom_mutators/grammar_mutator
+sed -i 's/grammar_mutator/grammar-mutator/g' /AFLplusplus/custom_mutators/grammar_mutator/build_grammar_mutator.sh
+
+./build_grammar_mutator.sh
+cd grammar-mutator
+make GRAMMAR_FILE=/src/source/nutrimatic.json
+
+/AFLplusplus/custom_mutators/grammar_mutator/grammar-mutator/grammar_generator-nutrimatic 100 8 /src/source/corpus_grammar /src/source/corpus_grammar_trees
+
+cd /src/source
+mkdir -p findings_grammar
